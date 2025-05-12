@@ -55,6 +55,32 @@ class DynamicPIIAnalyzer:
         for recognizer in self.registry.recognizers:
             print(f"Recognizer: {recognizer.__class__.__name__}, Supported Entities: {recognizer.supported_entities}")
 
+def main():
+    pii_analyzer = DynamicPIIAnalyzer()
+    credit_card_patterns = [
+        r"\b(?:\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}|\d{16}|4\d{12}(?:\d{3})?|5[1-5]\d{14}|3[47]\d{13}|3(?:0[0-5]|[68]\d)\d{11}|3\d{3}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{2})\b"
+    ]
+    pii_analyzer.add_custom_recognizer("CREDIT_CARD",credit_card_patterns)
+    phone_number_pattern = r"(?:((?:\+1\s?|1\s?)?\(?[2-9][0-8][0-9]\)?[-.\s]?[2-9][0-9]{2}[-.\s]?[0-9]{4})|(?:\+91\s?[6-9]\d{9})|\+44\s?(?:\d{2}\s?\d{4}\s?\d{4}|\d{3}\s?\d{3}\s?\d{4}|\d{4}\s?\d{3}\s?\d{3}|\d{5}\s?\d{5}))"
+    pii_analyzer.add_custom_recognizer("PHONE_NO",phone_number_pattern)
+ 
+    client_name_pattern =r"(?i)kroll|(?i)Duffs&phelps"
+    pii_analyzer.add_custom_recognizer("CLIENT_NAME", client_name_pattern)
+ 
+    # Example text containing sensitive data
+    text = """My credit card number is 1234-5678-9876-5432, my phone number is +91 9876543210, UK Phone Number: +44 20 7946 0958 or +44 7911 123456  my email is example@example.com, my SSN is 123-45-6789, my passport number is A1234567, and my new entity ID is AB123456.  kroll akshata@genpact.com"""
+    # Analyze and anonymize the text using all configured entities
+    anonymized_text = pii_analyzer.analyze_and_anonymize_pii(text, ["CREDIT_CARD", "PHONE_NO", "EMAIL", "SSN", "PASSPORT_NUMBER", "CLIENT_NAME"])
+    print(anonymized_text)
+    # List available recognizers
+    pii_analyzer.list_available_recognizers()
+    # Remove custom recognizers
+    pii_analyzer.remove_custom_recognizer("CREDIT_CARD")
+    pii_analyzer.remove_custom_recognizer("CLIENT_NAME")
+    pii_analyzer.list_available_recognizers()
+if __name__ == "__main__":
+    main()
+
 
 
 
